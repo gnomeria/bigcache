@@ -1,4 +1,4 @@
-name: Go
+name: Build
 on: [push]
 jobs:
   build:
@@ -6,6 +6,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
+      max-parallel: 2
       matrix:
         go: ["1.9.3", "1.10.x", "1.11.x", "1.12.x", "1.13.x"]
 
@@ -29,14 +30,14 @@ jobs:
           go get github.com/stretchr/testify/assert;
           go get github.com/gordonklaus/ineffassign;
 
-      - name: Get project dependencies
-        run: |
-          export GO111MODULE=on
-          go get -v -t -d ./...
-          if [ -f Gopkg.toml ]; then
-              curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
-              dep ensure
-          fi
+      # - name: Get project dependencies
+      #   run: |
+      #     export GO111MODULE=on
+      #     go get -v -t -d ./...
+      #     if [ -f Gopkg.toml ]; then
+      #         curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+      #         dep ensure
+      #     fi
 
       - name: Code check
         run: |
@@ -45,6 +46,11 @@ jobs:
           golint ./...
           ineffassign .
           go vet ./...
+          go test -race -count=1 -coverprofile=queue.coverprofile ./queue
+          go test -race -count=1 -coverprofile=server.coverprofile ./server
+          go test -race -count=1 -coverprofile=main.coverprofile
+          $HOME/gopath/bin/gover
+          $HOME/gopath/bin/goveralls -coverprofile=gover.coverprofile -service travis-ci
 
       - name: Build
         run: go build -v .
