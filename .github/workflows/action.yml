@@ -7,7 +7,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        go: ["1.8", "1.9.3", "1.10.x", "1.11.x", "1.12.x", "1.13.x"]
+        go: ["1.9.3", "1.10.x", "1.11.x", "1.12.x", "1.13.x"]
 
     steps:
       - name: Set up Go 1.12
@@ -31,6 +31,7 @@ jobs:
 
       - name: Get project dependencies
         run: |
+          export GO111MODULE=on
           go get -v -t -d ./...
           if [ -f Gopkg.toml ]; then
               curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
