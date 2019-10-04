@@ -1,28 +1,50 @@
 name: Go
 on: [push]
 jobs:
-
   build:
     name: Build
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go: ["1.8", "1.9.3", "1.10.x", "1.11.x", "1.12.x", "1.13.x"]
+
     steps:
+      - name: Set up Go 1.12
+        uses: actions/setup-go@v1
+        with:
+          go-version: ${{matrix.go}}
+        id: go
 
-    - name: Set up Go 1.12
-      uses: actions/setup-go@v1
-      with:
-        go-version: 1.12
-      id: go
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v1
 
-    - name: Check out code into the Go module directory
-      uses: actions/checkout@v1
+      - name: Installing additional dependencies
+        run: |
+          go get github.com/modocache/gover;
+          go get github.com/mattn/goveralls;
+          go get golang.org/x/tools/cmd/cover;
+          go get golang.org/x/tools/cmd/goimports;
+          go get golang.org/x/lint/golint;
+          go get github.com/stretchr/testify/assert;
+          go get github.com/gordonklaus/ineffassign;
 
-    - name: Get dependencies
-      run: |
-        go get -v -t -d ./...
-        if [ -f Gopkg.toml ]; then
-            curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
-            dep ensure
-        fi
+      - name: Get project dependencies
+        run: |
+          go get -v -t -d ./...
+          if [ -f Gopkg.toml ]; then
+              curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+              dep ensure
+          fi
 
-    - name: Build
-      run: go build -v .
+      - name: Code check
+        run: |
+          gofiles=$(find ./ -name '*.go') && [ -z "$gofiles" ] || unformatted=$(goimports -l $gofiles) && [ -z "$unformatted" ] || (echo >&2 "Go files must be formatted with gofmt. Following files has problem: $unformatted" && false);
+          diff <(echo -n) <(gofmt -s -d .)
+          golint ./...
+          ineffassign .
+          go vet ./...
+
+      - name: Build
+        run: go build -v .
+
+      - name
