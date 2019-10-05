@@ -26,9 +26,7 @@ jobs:
           go get github.com/mattn/goveralls;
           go get golang.org/x/tools/cmd/cover;
           go get golang.org/x/tools/cmd/goimports;
-          go get golang.org/x/lint/golint;
           go get github.com/stretchr/testify/assert;
-          go get github.com/gordonklaus/ineffassign;
 
       - name: Lint code
         run: |
@@ -40,6 +38,7 @@ jobs:
 
       - name: Code quality check
         run: |
+          go get -u github.com/gordonklaus/ineffassign;
           ineffassign .
           go vet ./...
           go test -race -count=1 -coverprofile=queue.coverprofile ./queue
