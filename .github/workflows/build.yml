@@ -33,22 +33,10 @@ jobs:
 
       - name: Lint code
         run: |
+          gofiles=$(find ./ -name '*.go') && [ -z "$gofiles" ] || unformatted=$(goimports -l $gofiles) && [ -z "$unformatted" ] || (echo >&2 "Go files must be formatted with gofmt. Following files has problem: $unformatted" &&  true);
+          diff <(echo -n) <(gofmt -s -d .)
           export PATH=$PATH:$(go env GOPATH)/bin # temporary fix. See https://github.com/actions/setup-go/issues/14
-          go get golang.org/x/tools/cmd/goimports;
           go get -u golang.org/x/lint/golint 
-
-          gofiles=$(find ./ -name '*.go') && [ -z "$gofiles" ]
-          unformatted=$(goimports -l $gofiles) && [ -z "$unformatted" ] 
-          (echo >&2 "Go files must be formatted with gofmt. Following files has problem: $unformatted")
-          COMMENT=$(diff <(echo -n) <(gofmt -s -d .))
-          GITHUB_TOKEN=${{secrets.github_token}}
-          PAYLOAD=$(echo '{}' | jq --arg body "$COMMENT" '.body = $body')
-          COMMENTS_URL=$(cat /github/workflow/event.json | jq -r .pull_request.comments_url)
-          if [ "COMMENTS_URL" != null ]; then
-            curl -s -S -H "Authorization: token $GITHUB_TOKEN" --header "Content-Type: application/json" --data "$PAYLOAD" "$COMMENTS_URL" > /dev/null
-          fi
-
-
           golint ./...
 
       - name: Static code check
@@ -72,12 +60,6 @@ jobs:
           gover
           cat gover.coverprofile >> coverage.txt
           bash <(curl -s https://codecov.io/bash)
-
-      # - name: Coveralls upload
-      #   uses: coverallsapp/github-action@master
-      #   with:
-      #     github-token: ${{ secrets.github_token }}
-      #     path-to-lcov: ./gover.coverprofile
 
       - name: Build
         run: go build -v .
