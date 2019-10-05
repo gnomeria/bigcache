@@ -37,7 +37,9 @@ jobs:
           go get golang.org/x/tools/cmd/goimports;
           go get -u golang.org/x/lint/golint 
 
-          gofiles=$(find ./ -name '*.go') && [ -z "$gofiles" ] || unformatted=$(goimports -l $gofiles) && [ -z "$unformatted" ] || (echo >&2 "Go files must be formatted with gofmt. Following files has problem: $unformatted" &&  false);
+          gofiles=$(find ./ -name '*.go') && [ -z "$gofiles" ]
+          unformatted=$(goimports -l $gofiles) && [ -z "$unformatted" ] 
+          (echo >&2 "Go files must be formatted with gofmt. Following files has problem: $unformatted")
           COMMENT=$(diff <(echo -n) <(gofmt -s -d .))
           GITHUB_TOKEN=${{secrets.github_token}}
           PAYLOAD=$(echo '{}' | jq --arg body "$COMMENT" '.body = $body')
