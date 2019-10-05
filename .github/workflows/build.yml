@@ -38,6 +38,7 @@ jobs:
 
       - name: Code quality check
         run: |
+          export PATH=$PATH:$(go env GOPATH)/bin
           go get -u github.com/gordonklaus/ineffassign
           ineffassign .
           go vet ./...
