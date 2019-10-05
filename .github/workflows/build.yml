@@ -53,13 +53,13 @@ jobs:
           go test -race -count=1 -coverprofile=server.coverprofile ./server
           go test -race -count=1 -coverprofile=main.coverprofile
           gover
-          # goveralls -coverprofile=gover.coverprofile
+          goveralls -coverprofile=gover.coverprofile
 
-      - name: Coveralls upload
-        uses: coverallsapp/github-action@master
-        with:
-          github-token: ${{ secrets.github_token }}
-          path-to-lcov: ./gover.coverprofile
+      # - name: Coveralls upload
+      #   uses: coverallsapp/github-action@master
+      #   with:
+      #     github-token: ${{ secrets.github_token }}
+      #     path-to-lcov: ./gover.coverprofile
 
       - name: Build
         run: go build -v .
