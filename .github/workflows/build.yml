@@ -38,17 +38,26 @@ jobs:
           go get -u golang.org/x/lint/golint 
           golint ./...
 
-      - name: Code quality check
+      - name: Static code check
         run: |
           export PATH=$PATH:$(go env GOPATH)/bin
           go get -u github.com/gordonklaus/ineffassign
           ineffassign .
           go vet ./...
+
+      - name: Coverall
+        run: |
           go test -race -count=1 -coverprofile=queue.coverprofile ./queue
           go test -race -count=1 -coverprofile=server.coverprofile ./server
           go test -race -count=1 -coverprofile=main.coverprofile
           gover
-          goveralls -coverprofile=gover.coverprofile -service travis-ci
+          # goveralls -coverprofile=gover.coverprofile
+
+      - name: Coveralls upload
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.github_token }}
+          path-to-lcov: ./gover.coverprofile
 
       - name: Build
         run: go build -v .
