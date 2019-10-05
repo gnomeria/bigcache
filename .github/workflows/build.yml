@@ -49,19 +49,16 @@ jobs:
         run: |
           export PATH=$PATH:$(go env GOPATH)/bin
           go get github.com/modocache/gover;
-          go test -race -count=1 -coverprofile=queue.coverprofile -covermode=atomic ./queue
-          go test -race -count=1 -coverprofile=server.coverprofile -covermode=atomic  ./server
-          go test -race -count=1 -coverprofile=main.coverprofile -covermode=atomic 
+          go test -race -count=1 -coverprofile=queue.coverprofile ./queue
+          go test -race -count=1 -coverprofile=server.coverprofile  ./server
+          go test -race -count=1 -coverprofile=main.coverprofile
 
       - name: Upload coverage to codecov
         run: |
           echo "" > coverage.txt
-          cat main.coverprofile >> main.coverprofile
-          cat server.coverprofile >> server.coverprofile
-          cat queue.coverprofile >> queue.coverprofile
+          gover
+          cat gover.coverprofile >> coverage.txt
           bash <(curl -s https://codecov.io/bash)
-          # gover
-          # goveralls -coverprofile=gover.coverprofile
 
       # - name: Coveralls upload
       #   uses: coverallsapp/github-action@master
