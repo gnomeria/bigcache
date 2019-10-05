@@ -45,8 +45,10 @@ jobs:
           ineffassign .
           go vet ./...
 
-      - name: Coverall
+      - name: Test
         run: |
+          export PATH=$PATH:$(go env GOPATH)/bin
+          go get github.com/modocache/gover;
           go test -race -count=1 -coverprofile=queue.coverprofile ./queue
           go test -race -count=1 -coverprofile=server.coverprofile ./server
           go test -race -count=1 -coverprofile=main.coverprofile
