@@ -1,5 +1,7 @@
 name: Go Build
 on: [push]
+env:
+  - GO111MODULE=on
 jobs:
   build:
     name: Build
