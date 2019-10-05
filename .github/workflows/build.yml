@@ -52,6 +52,13 @@ jobs:
           go test -race -count=1 -coverprofile=queue.coverprofile -covermode=atomic ./queue
           go test -race -count=1 -coverprofile=server.coverprofile -covermode=atomic  ./server
           go test -race -count=1 -coverprofile=main.coverprofile -covermode=atomic 
+
+      - name: Upload coverage to codecov
+        run: |
+          echo "" > coverage.txt
+          cat main.coverprofile >> main.coverprofile
+          cat server.coverprofile >> server.coverprofile
+          cat queue.coverprofile >> queue.coverprofile
           bash <(curl -s https://codecov.io/bash)
           # gover
           # goveralls -coverprofile=gover.coverprofile
